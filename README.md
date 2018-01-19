@@ -39,7 +39,7 @@ The preferred type of contribution is a Github's pull request. Pull request to t
 
 ### Technical proposals
 
-We opened a channel to propose technical specifciations. Those MAY affect the product itself or our the roadmap itself.
+We opened a channel to propose technical specifciations. Those MAY affect the product itself or the roadmap itself.
 To contribute with a technical specification you shall follow the guidelines of the [proposals repository](https://github.com/decentraland/proposals).
 
 ### Issue
