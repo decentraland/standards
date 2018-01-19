@@ -165,5 +165,5 @@ Every document containing external references must contain a *References* sectio
 ```markdown
 ## References
 
-- [1](https://msdn.microsoft.com/en-us/library/ee658098.aspx ) - Microsoft, What is Software Architecture?.
+- [1](https://msdn.microsoft.com/en-us/library/ee658098.aspx) - Microsoft, What is Software Architecture?.
 ```
