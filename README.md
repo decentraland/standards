@@ -97,7 +97,7 @@ in the architectural coordination process.
 
 ### Conventions
 
-Every Standard document MUST follow the [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt) and MUST contain a section following this style:
+Every Standard document MUST follow the [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt) and SHOULD contain a section following this style:
 
 ```markdown
 ## Conventions
@@ -122,7 +122,7 @@ This document describes style guides about how to write those standards.
 
 ### Related Documents
 
-Documents that have a relationship with other documents MUST include a section following this template:
+Documents that have a relationship with other documents SHOULD include a section following this template:
 
 ```markdown
 ## Related Documents
