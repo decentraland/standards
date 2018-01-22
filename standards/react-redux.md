@@ -12,7 +12,7 @@ Coding style and conventions for our React/Redux apps
 1. [Directory structure](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#1-directory-structure)
 2. [Naming conventions and file structure](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#2-naming-conventions-and-file-structure)
 3. [Performance](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#3-performance)
-4. [TypeScript](https://github.com/decentraland/dcl-standards/blob/master/react/README.md#typescript)
+4. [TypeScript](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#4-typescript)
 5. [Bonus tracks](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#5-bonus-tracks)
 
 ## 1. Directory structure
