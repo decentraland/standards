@@ -9,11 +9,11 @@ Coding style and conventions for our React/Redux apps
 
 ## Table of Content
 
-1. [Directory structure](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#1-directory-structure)
-2. [Naming conventions and file structure](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#2-naming-conventions-and-file-structure)
-3. [Performance](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#3-performance)
-4. [TypeScript](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#4-typescript)
-5. [Bonus tracks](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#5-bonus-tracks)
+1. [Directory structure](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#1-directory-structure)
+2. [Naming conventions and file structure](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#2-naming-conventions-and-file-structure)
+3. [Performance](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#3-performance)
+4. [TypeScript](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#4-typescript)
+5. [Bonus tracks](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#5-bonus-tracks)
 
 ## 1. Directory structure
 
@@ -582,6 +582,6 @@ import { Foo } = require('foo')
 
 ### And why do we break this rule for Components and Containers!?
 
-According to the [directory structure guidelines](https://github.com/decentraland/dcl-standards/blob/master/standards/react-redux.md#components), for each `[Component].js` file we have an `index.js` file that exports the Component. This is intended for when a component needs to be connected to the redux store, we can just create a `[Component].container.js` file, connect the Component, and then just point the `index.js` file to the container.
+According to the [directory structure guidelines](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#components), for each `[Component].js` file we have an `index.js` file that exports the Component. This is intended for when a component needs to be connected to the redux store, we can just create a `[Component].container.js` file, connect the Component, and then just point the `index.js` file to the container.
 
 We just want to get auto-imports/suggestions for the `index.js` file, and not for the other `[Component].js` and `[Component].container.js` files, that's why let those to `export default`, and then do a named export from the `index.js` file.
