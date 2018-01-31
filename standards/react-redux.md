@@ -407,11 +407,15 @@ Each component must have a `types.ts` with the following structure:
 // Component
 
 export type DefaultProps = {
+  title: ''
   width: number
   height: number
+  onClick: () => void
 }
 
-export type Props = Partial<DefaultProps>
+export type Props = Partial<DefaultProps> & { 
+  id: string // this is a required prop
+}
 
 export type State = {
   // this might not be needed if the component doesn't have internal state
