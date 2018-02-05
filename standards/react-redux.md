@@ -27,6 +27,8 @@ The sources of the project follow this structure:
       /actions.spec.js
       /reducer.js
       /reducer.spec.js
+      /selectos.js
+      /selectos.spec.js
       /sagas.js
       /sagas.spec.js
       /{subdomain}
@@ -159,11 +161,7 @@ export default connect(mapState, mapDispatch)(Component)
 
 1. Start with an `INITIAL_STATE`
 
-2. Export a function `reducer`
-
-3. Finally export selectors
-
-For selector we use lambdas, we use `get` as prefix unless the return value is a boolean, in that case we use `is`/`has`. Unless the state is too simple, add a `getState` selector that returns the root of the state of this reducer, and let the other selectors depend on it (so it's easier to refactor the shape of the application state later).
+2. Export a function `{domain}Reducer`
 
 **Example:**
 
@@ -174,7 +172,7 @@ const INITIAL_STATE = {
   something: 1
 }
 
-export function reducer(state = INITIAL_STATE, action) {
+export function somethingReducer(state = INITIAL_STATE, action) {
   switch(action.type) {
     case SOMETHIG:
       return {
@@ -185,11 +183,6 @@ export function reducer(state = INITIAL_STATE, action) {
       return state
   }
 }
-
-// --
-
-export const getState => state => state.path.to.reducer
-export const getSomething = state => getState(state).something
 ```
 
 ### 2.4 Actions
@@ -209,18 +202,38 @@ function doSomething(value) {
 }
 ```
 
-For async actions, use the prefix `_REQUEST`, `_SUCCESS` and `_FAILURE`
+For async actions types, use the prefix `_REQUEST`, `_SUCCESS` and `_FAILURE`, and for action creators `Request`, `Success` and `Failure`.
 
 
 ```js
 export const FETCH_SOMETHING_REQUEST = '[Request] Something'
 export const FETCH_SOMETHING_SUCCESS = '[Success] Something'
 export const FETCH_SOMETHING_FAILURE = '[Failure] Something'
+
+export function fetchSomethingRequest() {
+  return {
+    type: FETCH_SOMETHING_REQUEST
+  }
+}
+
+export function fetchSomethingSuccess(something) {
+  return {
+    type: FETCH_SOMETHING_SUCCESS,
+    something
+  }
+}
+
+export function fetchSomethingFailure(error) {
+  return {
+    type: FETCH_SOMETHING_ERROR,
+    error
+  }
+}
 ```
 
 ### 2.5 Sagas
 
-export a `function*` named `saga`, then place all the handlers below
+export a `function*` named `{domain}Saga`, then place all the handlers below.
 
 ```js
 import { 
@@ -229,16 +242,16 @@ import {
   FETCH_SOMETHING_FAILURE
 } from './actions'
 
-export function* saga() {
+export function* somethingSaga() {
   yield takeLatest(FETCH_SOMETHING_REQUEST, handleFetchSomething)
 }
 
 function* handleFetchSomething(action) {
   try {
     const something = yield call(() => fetch(...))
-    yield put({ type: FETCH_SOMETHING_SUCCESS, something })
+    yield put(fetchSomethingSuccess(something))
   } catch (error) {
-    yield put({ type: FETCH_SOMETHING_FAILURE, error: error.message })
+    yield put(fetchSomethingFailure(error.message))
   }
 }
 ```
@@ -256,7 +269,7 @@ export function* saga() {
 }
 
 function* handleLoginSuccess(action) {
-  yield put({ type: FETCH_SOMETHING_REQUEST })
+  yield put(fetchSomethingRequest())
 }
 ```
 
@@ -264,7 +277,7 @@ function* handleLoginSuccess(action) {
 
 ```js
 // modules/login/sagas.js
-import { FETCH_SOMETHING_REQUEST } from 'modules/login/actions'
+import { fetchSomethingRequest } from 'modules/login/actions'
 
 export function* saga() {
   yield takeLatest(LOGIN_REQUEST, handleLoginRequest)
@@ -273,12 +286,44 @@ export function* saga() {
 function* handleLoginRequest(action) {
   try {
     ...
-    yield put({ type: LOGIN_SUCCESS })
-    yield put({ type: FETCH_SOMETHING_REQUEST })
+    yield put(loginSuccess(...))
+    yield put(fetchSomethingRequest())
   } catch (error) {
-    yield put({ type: LOGIN_FAILURE, error: error.message })
+    yield put(loginFailure(error.message))
   }
 }
+```
+
+Always use action creators when you use `put`, do not create plain action objects inside a saga:
+
+
+**BAD:**
+
+```js
+import { FETCH_SOMETHING_REQUEST } from 'modules/something/actions
+// ...
+yield put({ type: FETCH_SOMETHING_REQUEST })
+```
+
+**GOOD:**
+
+```js
+import { fetchSomethingRequest } from 'modules/something/actions
+// ...
+yield put(fetchSomethingRequest())
+```
+
+### 2.6 Selectors
+
+For selector we use lambdas, we use `get` as prefix unless the return value is a boolean, in that case we use `is`/`has`. Unless the state is too simple, add a `getState` selector that returns the root of the state of this domain, and let the other selectors depend on it (so it's easier to refactor the shape of the application state later).
+
+**Example:**
+
+```js
+export const getState = state => state.something
+export const getSomething = state => getState(state).data
+export const isLoading = state => getState(state).loading
+export const getError = state => getState(state).error
 ```
 
 ## 3. Performance 
