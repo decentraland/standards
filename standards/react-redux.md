@@ -300,7 +300,7 @@ Always use action creators when you use `put`, do not create plain action object
 **BAD:**
 
 ```js
-import { FETCH_SOMETHING_REQUEST } from 'modules/something/actions
+import { FETCH_SOMETHING_REQUEST } from 'modules/something/actions'
 // ...
 yield put({ type: FETCH_SOMETHING_REQUEST })
 ```
@@ -308,7 +308,7 @@ yield put({ type: FETCH_SOMETHING_REQUEST })
 **GOOD:**
 
 ```js
-import { fetchSomethingRequest } from 'modules/something/actions
+import { fetchSomethingRequest } from 'modules/something/actions'
 // ...
 yield put(fetchSomethingRequest())
 ```
