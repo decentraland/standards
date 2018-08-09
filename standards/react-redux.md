@@ -12,7 +12,7 @@ Coding style and conventions for our React/Redux apps
 1. [Directory structure](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#1-directory-structure)
 2. [Naming conventions and file structure](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#2-naming-conventions-and-file-structure)
 3. [Performance](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#3-performance)
-4. [TypeScript](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#4-typescript)
+4. [Component Types](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#4-component-types)
 5. [Bonus tracks](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#5-bonus-tracks)
 
 ## 1. Directory structure
@@ -23,22 +23,24 @@ The sources of the project follow this structure:
 /src
   /modules
     /{domain}
-      /actions.js
-      /actions.spec.js
-      /reducer.js
-      /reducer.spec.js
-      /selectos.js
-      /selectos.spec.js
-      /sagas.js
-      /sagas.spec.js
+      /actions.ts
+      /actions.spec.ts
+      /reducer.ts
+      /reducer.spec.ts
+      /selectos.ts
+      /selectos.spec.ts
+      /sagas.ts
+      /sagas.spec.ts
+      /types.ts
       /{subdomain}
   /components
     /{component}
       /{component}.jsx
-      /{component}.spec.js
-      /{component}.container.js
+      /{component}.spec.ts
+      /{component}.container.ts
+      /{components}.types.ts
       /{component}.css
-      /index.js
+      /index.ts
       /{subcomponent}
 ```
 
@@ -64,7 +66,7 @@ Keeping all the parts together makes refactoring/fixing/updating code easier. Al
 
 This directory contains all the React components.
 
-Each component has it's own directory, with a component file, a styles file, and its typings and tests. It ALWAYS has an `index.js` that exports the component. A component may also have a `.container.js` file which basically consist of the `mapState` and `mapDispatch` functions, and returns the connected HOC.
+Each component has it's own directory, with a component file, a styles file, and its typings and tests. It ALWAYS has an `index.ts` that exports the component. A component may also have a `.container.ts` file which basically consist of the `mapState` and `mapDispatch` functions, and returns the connected HOC.
 
 A component can have child components or subcomponents (components that are only used by or relevant to their parent component). These will follow the same structure as their parent.
 
@@ -72,7 +74,7 @@ A component can have child components or subcomponents (components that are only
 
 Why don't we have a separate `/components` and `/containers` folders like everyone else? 
 
-Why do we need that annoying `index.js` file??
+Why do we need that annoying `index.ts` file??
 
 As the application grows, components grow with them. Sometimes a component needs to be split into smaller components with different responsabilities. When this happens sometimes a container is better off as a regular component with child containers instead:
 
@@ -102,13 +104,13 @@ Now these three containers have a smaller mapped surface than the +20 props pare
  
 This is also more performant since now a change in the store might trigger a re-render of a single container, instead of re-rendering the only parent container with its three children.
 
-Now, since each component has a `.container.js` file we can just copy the parent's one to each of the children's directory, and strip out the unnecesary props.
+Now, since each component has a `.container.ts` file we can just copy the parent's one to each of the children's directory, and strip out the unnecesary props.
 
-Now is when that `index.js` file pays off, on the children components we just point it from the component file, to the `.container.js` file, and we do the oposite on the parent component. And everything keeps working as before, but we have cleaner, more performant code. Easy refactor.
+Now is when that `index.ts` file pays off, on the children components we just point it from the component file, to the `.container.ts` file, and we do the oposite on the parent component. And everything keeps working as before, but we have cleaner, more performant code. Easy refactor.
 
 This helps the application to stay healthy and scalable as it grows.
 
-Having the `.container.js` separated from the component itself makes the component easier to test (we just need to test the un-connected component, no need to mock a redux store). And also makes it easy to mock data and develop components when the redux modules that it uses are not ready yet (you just mock the `mapState` and `mapDispatch` results).
+Having the `.container.ts` separated from the component itself makes the component easier to test (we just need to test the un-connected component, no need to mock a redux store). And also makes it easy to mock data and develop components when the redux modules that it uses are not ready yet (you just mock the `mapState` and `mapDispatch` results).
 
 ## 2. Naming conventions and file structure
 
@@ -126,7 +128,7 @@ Having the `.container.js` separated from the component itself makes the compone
 
 Each file contains a single component, which's name matches the name of the file, (always in PascalCase) and it is exported as `default`, ie:
 
-```js
+```ts
 import React from 'react'
 ...
 export class MyComponet extends React.PureComponent {
@@ -166,13 +168,19 @@ export default connect(mapState, mapDispatch)(Component)
 **Example:**
 
 ```js
-import { SOMETHING } from './actions'
+import { SOMETHING, SomethingAction } from './actions'
+
+export type SomethingState = {
+  something: number
+}
 
 const INITIAL_STATE = {
   something: 1
 }
 
-export function somethingReducer(state = INITIAL_STATE, action) {
+export type SomethingReducerAction = SomethingAction // | OtherAction | AnotherAction
+
+export function somethingReducer(state: SomethingState = INITIAL_STATE, action: SomethingReducerAction): SomethingState {
   switch(action.type) {
     case SOMETHIG:
       return {
@@ -191,44 +199,52 @@ Export all action types as constants at the beginning, then all the action creat
 
 Example:
 
-```js
-const SOMETHING = 'Something'
+```ts
+import { action } from 'typesafe-actions'
 
-function doSomething(value) {
-  return {
-    type: SOMETHING,
-    value
-  } 
-}
+// Do Something
+
+export const DO_SOMETHING = 'Do Something'
+
+export const doSomething = (someParam: string) =>
+  action(DO_SOMETHING, {
+    someParam
+  })
+
+export type DoSomethingAction = ReturnType<typeof doSomething>
 ```
 
 For async actions types, use the prefix `_REQUEST`, `_SUCCESS` and `_FAILURE`, and for action creators `Request`, `Success` and `Failure`.
 
 
-```js
-export const FETCH_SOMETHING_REQUEST = '[Request] Something'
-export const FETCH_SOMETHING_SUCCESS = '[Success] Something'
-export const FETCH_SOMETHING_FAILURE = '[Failure] Something'
+```ts
+import { action } from 'typesafe-actions'
+import { Something } from './types'
 
-export function fetchSomethingRequest() {
-  return {
-    type: FETCH_SOMETHING_REQUEST
-  }
-}
+// Fetch Something
 
-export function fetchSomethingSuccess(something) {
-  return {
-    type: FETCH_SOMETHING_SUCCESS,
+export const FETCH_SOMETHING_REQUEST = '[Request] Fetch Something'
+export const FETCH_SOMETHING_SUCCESS = '[Success] Fetch Something'
+export const FETCH_SOMETHING_FAILURE = '[Failure] Fetch Something'
+
+export const fetchSomethingRequest = (someParam: string) =>
+  action(FETCH_SOMETHING_REQUEST, {
+    someParam
+  })
+
+export const fetchSomethingSuccess = (something: Something) =>
+  action(FETCH_SOMETHING_SUCCESS, {
     something
-  }
-}
+  })
 
-export function fetchSomethingFailure(error) {
-  return {
-    type: FETCH_SOMETHING_ERROR,
-    error
-  }
-}
+export const fetchSomethingFailure = (errorMessage: string) =>
+  action(FETCH_SOMETHING_FAILURE, {
+    errorMessage
+  })
+
+export type FetchSomethingRequestAction = ReturnType<typeof fetchSomethingRequest>
+export type FetchSomethingSuccessAction = ReturnType<typeof fetchSomethingSuccess>
+export type FetchSomethingFailureAction = ReturnType<typeof fetchSomethingFailure>
 ```
 
 ### 2.5 Sagas
@@ -256,28 +272,13 @@ function* handleFetchSomething(action) {
 }
 ```
 
-The pattern that we use to trigger actions from a different domain is always `put`'ing the action, never `take`'ing it.
+The pattern that we use to trigger actions from a different domain is always `take`'ing the action, never `put`'ing it.
 
 **BAD:**
 
-```js
-// modules/something/sagas.js
-import { LOGIN_SUCCESS } from 'modules/login/actions'
-
-export function* saga() {
-  yield takeLatest(LOGIN_SUCCESS, handleLoginSuccess)
-}
-
-function* handleLoginSuccess(action) {
-  yield put(fetchSomethingRequest())
-}
-```
-
-**GOOD:**
-
-```js
-// modules/login/sagas.js
-import { fetchSomethingRequest } from 'modules/login/actions'
+```ts
+// modules/wallet/sagas.ts
+import { fetchSomethingRequest } from 'modules/something/actions'
 
 export function* saga() {
   yield takeLatest(LOGIN_REQUEST, handleLoginRequest)
@@ -294,12 +295,28 @@ function* handleLoginRequest(action) {
 }
 ```
 
+**GOOD:**
+
+```ts
+// modules/something/sagas.ts
+import { CONNECT_WALLET_SUCCESS, ConnectWalletSuccessAction } from 'modules/wallet/actions'
+import { fetchSomethingRequest } from './actions'
+
+export function* saga() {
+  yield takeLatest(CONNECT_WALLET_SUCCESS, handleConnectWalletSuccess)
+}
+
+function* handleConnectWalletSuccess(action: ConnectWalletSuccessAction) {
+  yield put(fetchSomethingRequest())
+}
+```
+
 Always use action creators when you use `put`, do not create plain action objects inside a saga:
 
 
 **BAD:**
 
-```js
+```ts
 import { FETCH_SOMETHING_REQUEST } from 'modules/something/actions'
 // ...
 yield put({ type: FETCH_SOMETHING_REQUEST })
@@ -307,7 +324,7 @@ yield put({ type: FETCH_SOMETHING_REQUEST })
 
 **GOOD:**
 
-```js
+```ts
 import { fetchSomethingRequest } from 'modules/something/actions'
 // ...
 yield put(fetchSomethingRequest())
@@ -319,7 +336,27 @@ For selector we use lambdas, we use `get` as prefix unless the return value is a
 
 **Example:**
 
-```js
+```ts
+export const getState = state => state.something
+export const getSomething = state => getState(state).data
+export const isLoading = state => getState(state).loading
+export const getError = state => getState(state).error
+```
+
+### 2.7 Types
+
+The domain specific types will live in a `types.ts` file:
+
+```ts
+export type Something = {
+  // ..
+}
+```
+
+
+**Example:**
+
+```ts
 export const getState = state => state.something
 export const getSomething = state => getState(state).data
 export const isLoading = state => getState(state).loading
@@ -444,9 +481,9 @@ export const getList = createSelector(
 )
 ```
 
-## 4. TypeScript
+## 4. Component Types
 
-Each component must have a `types.ts` with the following structure:
+Each component must have a `{components}.types.ts` with the following structure:
 
 ```tsx
 // Component
