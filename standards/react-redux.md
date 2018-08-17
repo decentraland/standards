@@ -35,7 +35,7 @@ The sources of the project follow this structure:
       /{subdomain}
   /components
     /{component}
-      /{component}.jsx
+      /{component}.tsx
       /{component}.spec.ts
       /{component}.container.ts
       /{components}.types.ts
