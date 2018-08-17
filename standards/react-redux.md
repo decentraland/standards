@@ -509,7 +509,6 @@ export type Context = {
 
 // Container
 export type StateProps = Pick<Props, 'title' | 'width' | 'height'>
-export type OwnProps = Pick<Props, 'id'>
 export type DispatchProps = Pick<Props, 'onClick'>
 ```
 
@@ -543,11 +542,11 @@ export default class MyComponent extends React.PureComponent<Props, State> {
 
 ```tsx
 import MyComponent from './MyComponent'
-import { getThing } from 'app/thing/selectors'
-import { OwnProps, StateProps, DispatchProps } from './types'
-import { State } from 'app/types'
+import { getThing } from 'modules/thing/selectors'
+import { Props, MapStateProps, MapDispatchProps } from './MyComponent.types'
+import { RootState, RootDispatch } from 'types'
 
-export const mapState = (state: State, { id }: OwnProps): StateProps => {
+export const mapState = (state: RootState, { id }: Props): MapStateProps => {
   const thing = getThing(state, id)
   return {
     title: thing.title,
@@ -556,7 +555,7 @@ export const mapState = (state: State, { id }: OwnProps): StateProps => {
   }
 }
 
-export const mapDispatch = (dispatch, { id }: OwnProps): DispatchProps => ({
+export const mapDispatch = (dispatch: RootDispatch, { id }: Props): MapDispatchProps => ({
   onClick: () => console.log(`you clicked ${id}`)
 })
 
@@ -580,9 +579,9 @@ export class App extends React.PureComponent {
 
 Notice that all the properties in `DefaultProps` are mandatory, and this is intended, so if we add a prop to the component that is optional, that means that it **MUST** have a default value. So once we add a new property to the `DefaultProps` type, TypeScript is not going to let us compile until we go to the component and add a default value to it.
 
-Making all the props required in the `DefaultProps` is not an issue in the final `Props` type because we extend `Partial<IDefaultProps>` which turns them all into optional properties, so the final type will only mark as required the properties extended by `Props`.
+Making all the props required in the `DefaultProps` is not an issue in the final `Props` type because we extend `Partial<IDefaultProps>` which turns them all into optional properties, so the final type will only mark as required the properties extended by `Props`. If the component doesn't have any default props we can just define `Props`.
 
-To type the `mapState` and `mapDispatch` functions in the container we want to export types created by using `Pick`. In some cases (when ALL the component's props come from the state) the `StateProps` will match `Props`. In this case we can reuse `Props` instead of creating `StateProps`. Also some components don't have own props or don't map any prop to `dispatch`, in those cases there's no point in exporting `OwnProps` or `DispatchProps`.
+To type the `mapState` and `mapDispatch` functions in the container we want to export types created by using `Pick`. In some cases (when ALL the component's props come from the state) the `MapStateProps` will match `Props`. In this case we can reuse `Props` instead of creating `MapStateProps`. Also some components don't map any prop to `dispatch`, in those cases there's no point in exporting `DispatchProps`.
 
 To type the internal state and the context we will export types named `State` and `Context`.
 
