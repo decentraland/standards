@@ -585,6 +585,131 @@ To type the `mapState` and `mapDispatch` functions in the container we want to e
 
 To type the internal state and the context we will export types named `State` and `Context`.
 
+### 4.1 Types and interfaces
+
+Use `interface` when you want to describe **what an object can do**. The whole purpose of interfaces is to tell what capabilities a class has, that's why an object can implement several interfaces:
+
+```ts
+interface IReadable {
+  read(): string
+}
+
+interface IWritable {
+  write(value: string): void
+}
+
+class Store implements IReadable, IWritable {
+  constructor(public value: string) {}
+
+  read() {
+    return this.value
+  }
+
+  write(value: string) {
+    this.value = value
+  }
+}
+
+// now Store instances can be consumed by classes that expect IReadable or IWritable objects
+
+class User {
+  constructor(public name: string) {}
+  save(store: IWritable) {
+    store.write(this.name)
+  }
+}
+```
+
+When you need to describe **what an object is** without defining implementation (or partially) use abstract classes:
+
+```ts
+abstract class Component {
+
+  constructor(public props: any) {}
+
+  setState(state) {
+    this.state = state
+    this.render()
+  }
+
+  abstract render(): any
+}
+
+class MyComponent extends Component {
+  render() {
+    return <p onClick={() => this.setState({ clicked: true })}>
+  }
+}
+```
+
+Use `type` when you want to describe _the shape of an object_. Most of the typing (if not all) in a react-redux application fall under this case:
+
+```ts
+// modules/user/types.ts
+
+type User = {
+  id: number
+  name: string
+}
+```
+
+```ts
+import { User } from 'modules/user/types'
+
+type SaveUserOptions = {
+  // options
+}
+
+function saveUser(user: User, options?: SaveUserOptions) {
+  // save user
+}
+```
+
+Use PascalCase for types and a "I" preffix for interfaces:
+
+```tsx
+export type User = {
+  id: number
+  name: string
+}
+
+export interface IUserService {
+  users: User[]
+}
+```
+
+### Why?
+
+Types and interfaces are very similar, we decided to use types for shapes and interfaces for objects contracts since interfaces are the ones that should conceptually be implemented. Interface in TypeScript can have the same name as the implementation, we need the "I" preffix so we can differ one from another:
+
+**BAD**
+
+```tsx
+interface Foo {
+  bar: () => void
+}
+
+export class Foo implements Foo {
+  bar() {
+    // stuff
+  }
+}
+```
+
+**GOOD**
+
+```tsx
+interface IFoo {
+  bar: () => void
+}
+
+export class Foo implements IFoo {
+  bar() {
+    // stuff
+  }
+}
+```
+
 ## 5. Bonus tracks
 
 ### Avoid exporting stuff as `default`
@@ -600,6 +725,7 @@ export default Foo
 ```
 
 **GOOD**
+
 ```js
 // Foo.js
 export const Foo = 5
