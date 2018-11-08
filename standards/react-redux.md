@@ -1,6 +1,6 @@
 # Decentraland's React/Redux Guidelines
 
-**Document Status**: *Draft*.  
+**Document Status**: _Draft_.  
 **Maintainer**: Juan Cazala &lt;[juan@decentraland.org](mailto:juan@decentraland.org)&gt;.
 
 ## Introduction
@@ -13,7 +13,8 @@ Coding style and conventions for our React/Redux apps
 2. [Naming conventions and file structure](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#2-naming-conventions-and-file-structure)
 3. [Performance](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#3-performance)
 4. [Component Types](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#4-component-types)
-5. [Bonus tracks](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#5-bonus-tracks)
+5. [Imports order on files](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#5-imports-order-on-files)
+6. [Bonus tracks](https://github.com/decentraland/standards/blob/master/standards/react-redux.md#5-bonus-tracks)
 
 ## 1. Directory structure
 
@@ -50,7 +51,7 @@ There are two main branches, `/modules` and `/components`.
 
 This directory contains all the redux modules of the application.
 
-It follows a domain driven structure, where each domain of the application will be represented as a directory,  and all the actions (action types, action creators, and thunks/sagas), reducers and selectors (and all their test specs) for that specific domain will live inside.
+It follows a domain driven structure, where each domain of the application will be represented as a directory, and all the actions (action types, action creators, and thunks/sagas), reducers and selectors (and all their test specs) for that specific domain will live inside.
 
 A domain may contain child domains or subdomains (domains that are only used by or relevant to their parent domain). These will follow the same structure as their parent.
 
@@ -72,7 +73,7 @@ A component can have child components or subcomponents (components that are only
 
 ### Why?!
 
-Why don't we have a separate `/components` and `/containers` folders like everyone else? 
+Why don't we have a separate `/components` and `/containers` folders like everyone else?
 
 Why do we need that annoying `index.ts` file??
 
@@ -101,7 +102,7 @@ Having so many props and following them down the component tree can make the cod
 ```
 
 Now these three containers have a smaller mapped surface than the +20 props parent, and props are not passed downsseveral steps.
- 
+
 This is also more performant since now a change in the store might trigger a re-render of a single container, instead of re-rendering the only parent container with its three children.
 
 Now, since each component has a `.container.ts` file we can just copy the parent's one to each of the children's directory, and strip out the unnecesary props.
@@ -154,7 +155,10 @@ const mapDispatch = dispatch => {
   // ...
 }
 
-export default connect(mapState, mapDispatch)(Component)
+export default connect(
+  mapState,
+  mapDispatch
+)(Component)
 ```
 
 ### 2.3 Reducer
@@ -216,7 +220,6 @@ export type DoSomethingAction = ReturnType<typeof doSomething>
 
 For async actions types, use the prefix `_REQUEST`, `_SUCCESS` and `_FAILURE`, and for action creators `Request`, `Success` and `Failure`.
 
-
 ```ts
 import { action } from 'typesafe-actions'
 import { Something } from './types'
@@ -242,9 +245,15 @@ export const fetchSomethingFailure = (errorMessage: string) =>
     errorMessage
   })
 
-export type FetchSomethingRequestAction = ReturnType<typeof fetchSomethingRequest>
-export type FetchSomethingSuccessAction = ReturnType<typeof fetchSomethingSuccess>
-export type FetchSomethingFailureAction = ReturnType<typeof fetchSomethingFailure>
+export type FetchSomethingRequestAction = ReturnType<
+  typeof fetchSomethingRequest
+>
+export type FetchSomethingSuccessAction = ReturnType<
+  typeof fetchSomethingSuccess
+>
+export type FetchSomethingFailureAction = ReturnType<
+  typeof fetchSomethingFailure
+>
 ```
 
 ### 2.5 Sagas
@@ -252,7 +261,7 @@ export type FetchSomethingFailureAction = ReturnType<typeof fetchSomethingFailur
 export a `function*` named `{domain}Saga`, then place all the handlers below.
 
 ```js
-import { 
+import {
   FETCH_SOMETHING_REQUEST,
   FETCH_SOMETHING_SUCCESS,
   FETCH_SOMETHING_FAILURE
@@ -299,7 +308,10 @@ function* handleLoginRequest(action) {
 
 ```ts
 // modules/something/sagas.ts
-import { CONNECT_WALLET_SUCCESS, ConnectWalletSuccessAction } from 'modules/wallet/actions'
+import {
+  CONNECT_WALLET_SUCCESS,
+  ConnectWalletSuccessAction
+} from 'modules/wallet/actions'
 import { fetchSomethingRequest } from './actions'
 
 export function* saga() {
@@ -312,7 +324,6 @@ function* handleConnectWalletSuccess(action: ConnectWalletSuccessAction) {
 ```
 
 Always use action creators when you use `put`, do not create plain action objects inside a saga:
-
 
 **BAD:**
 
@@ -353,7 +364,6 @@ export type Something = {
 }
 ```
 
-
 **Example:**
 
 ```ts
@@ -363,11 +373,11 @@ export const isLoading = state => getState(state).loading
 export const getError = state => getState(state).error
 ```
 
-## 3. Performance 
+## 3. Performance
 
 ### 3.1 Use `PureComponent`s
 
-We should use `PureComponent`s for all our components, except when they depend on the `context`. They work in the same way as regular `Component`s but they implement a `shouldComponentUpdate()` with a shallow prop and state comparison. This can save tons of unnecessary renders. 
+We should use `PureComponent`s for all our components, except when they depend on the `context`. They work in the same way as regular `Component`s but they implement a `shouldComponentUpdate()` with a shallow prop and state comparison. This can save tons of unnecessary renders.
 
 i.e:
 
@@ -443,8 +453,8 @@ class Input extends React.PureComponent {
 
 ### 3.3 Use memoized selectors
 
-Using memoized selectors (like `reselect`) helps preventing unnecessary computation and since the 
-reference is memoized (it returns the same reference), when we combine this with 
+Using memoized selectors (like `reselect`) helps preventing unnecessary computation and since the
+reference is memoized (it returns the same reference), when we combine this with
 `PureComponent` that will also save tons of unnecessary renders.
 
 **BAD:**
@@ -453,9 +463,8 @@ reference is memoized (it returns the same reference), when we combine this with
 export const getList = state => {
   const books = getBooks(state)
   const authors = getAuthors(state)
-  return Object.keys(books)
-  .map(bookId => {
-    const book = books[bookId]    
+  return Object.keys(books).map(bookId => {
+    const book = books[bookId]
     return {
       ...book,
       author: authors[book.authorId]
@@ -467,17 +476,14 @@ export const getList = state => {
 **GOOD:**
 
 ```js
-export const getList = createSelector(
-  getBooks,
-  getAuthors,
-  (books, authors) => Object.keys(books)
-    .map(bookId => {
-      const book = books[bookId]
-      return {
-        ...book,
-        author: authors[book.authorId]
-      }
-    })
+export const getList = createSelector(getBooks, getAuthors, (books, authors) =>
+  Object.keys(books).map(bookId => {
+    const book = books[bookId]
+    return {
+      ...book,
+      author: authors[book.authorId]
+    }
+  })
 )
 ```
 
@@ -495,7 +501,7 @@ export type DefaultProps = {
   onClick: () => void
 }
 
-export type Props = Partial<DefaultProps> & { 
+export type Props = Partial<DefaultProps> & {
   id: string // this is a required prop
 }
 
@@ -535,7 +541,6 @@ export default class MyComponent extends React.PureComponent<Props, State> {
     )
   }
 }
-
 ```
 
 **Container**
@@ -555,11 +560,17 @@ export const mapState = (state: RootState, { id }: Props): MapStateProps => {
   }
 }
 
-export const mapDispatch = (dispatch: RootDispatch, { id }: Props): MapDispatchProps => ({
+export const mapDispatch = (
+  dispatch: RootDispatch,
+  { id }: Props
+): MapDispatchProps => ({
   onClick: () => console.log(`you clicked ${id}`)
 })
 
-export default connect(mapState, mapDispatch)(Component)
+export default connect(
+  mapState,
+  mapDispatch
+)(Component)
 ```
 
 **App**
@@ -570,7 +581,7 @@ import MyComponent from 'components/MyComponent'
 
 export class App extends React.PureComponent {
   render() {
-    return <MyComponent id={5}/>
+    return <MyComponent id={5} />
   }
 }
 ```
@@ -710,7 +721,150 @@ export class Foo implements IFoo {
 }
 ```
 
-## 5. Bonus tracks
+## 5. Imports order on files
+
+Imports should be grouped together in the following sets of imports:
+
+1. System and third-party imports, like `fs`, `react` and `express`.
+2. First-party libraries, like `decentraland-ui`
+3. Local imports, starting with imports referenced as modules and then sorted by distance
+
+- Use local absolute paths when importing root components, and use relative paths when importing child components
+- Newlines are mandatory
+- Comments are not mandatory
+
+```javascript
+/* global libraries */
+import React from 'react'
+/* first-party libraries */
+import ui from 'decentraland-ui'
+
+/**
+ * local imports, on each section, keep the NODE_PATHs first, then less specific first.
+ * For example: `modules/actions` comes first, next `./XX`, `../XX`, `../../XX`,
+ */
+/* actions imports */
+import actions from 'modules/actions'
+/* selectors imports */
+import selectors from 'modules/selectors'
+/* sagas imports */
+import sagas from 'modules/sagas'
+/* utils & helpers imports */
+import util from 'utils'
+/* components imports */
+import MyComponent from 'components/MyComponent'
+
+/* css imports */
+import './MyComponent.css'
+```
+
+**BAD:**
+
+```javascript
+import utils from './utils'
+import React from 'react'
+import 'MyCss.css'
+```
+
+**GOOD:**
+
+```javascript
+import React from 'react'
+
+import utils from './utils'
+
+import 'MyCss.css'
+```
+
+**BAD:**
+
+```javascript
+import React from 'react'
+
+import utils from 'utils'
+import Component from './MyComponent'
+import sagaA from 'modules/moduleA/sagas'
+import actions from 'modules/module/actions/actionsA'
+import sagaB from 'modules/moduleB/sagas'
+import selectors from 'modules/moduleB/selectors'
+
+import 'MyCss.css'
+```
+
+**GOOD:**
+
+```javascript
+import React from 'react'
+
+import actions from 'modules/module/actions/actionsA'
+import selectors from 'modules/moduleB/selectors'
+import sagaA from 'modules/moduleA/sagas'
+import sagaB from 'modules/moduleB/sagas'
+import utils from 'utils'
+import Component from './MyComponent'
+
+import 'MyCss.css'
+```
+
+**BAD:**
+
+```javascript
+import React from 'react'
+
+import utils from '../utils'
+import helpers from 'helpers'
+import a from '../a'
+import b from 'folder/b'
+import c from '../../c'
+
+import 'MyCss.css'
+```
+
+**GOOD:**
+
+```javascript
+import React from 'react'
+
+import helpers from 'helpers'
+import b from 'folder/b'
+import utils from './utils'
+import a from '../a'
+import c from '../../c'
+
+import 'MyCss.css'
+```
+
+**BAD:**
+
+```javascript
+import React from 'react'
+
+import rootComponent from '../rootComponent'
+import childComponent from 'components/currentFolder/childComponent'
+
+import 'MyCss.css'
+```
+
+**GOOD:**
+
+```javascript
+import React from 'react'
+
+import rootComponent from 'components/rootComponent'
+import childComponent from './childComponent'
+
+import 'MyCss.css'
+```
+
+### Why?!
+
+Keeping a consistent order helps us quickly scan imports and know what's going on without having to know exactly what we're looking for.
+
+### Good to have
+
+We can configure it as a [linter rule](https://eslint.org/docs/rules/sort-imports)
+
+## 6. Bonus tracks
 
 ### Avoid exporting stuff as `default`
 
