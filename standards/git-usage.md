@@ -7,6 +7,31 @@
 
 We agreed on normalizing commit messages to master branches to avoid things like `Merge pull request #15 from client/menduz-patch-10` in persuit of more semantic messages like `fix: commit style guide, closes #15`. That is particularly helpful in repositories with several contributors and fosters professionalism in open source repositories.
 
+# Branches
+
+When you work on a branch on a specific issue, we keep the spirit of [semantic branch naming](https://medium.com/@hanuman_95739/how-to-integrate-branch-naming-commit-message-and-push-rules-in-gitlab-fe9cd642cc1a). Think of this as writing what is and what you are doing in a three word sentence The first one must be oune of the list. For instance: 
+
+```
+fix/wrong_host
+^  ^^------------^
+|  ||
+|  |+----> Summary in present tense.
+|  +-----> Slash
++--------> Type: chore, docs, feat, fix, refactor, style, or test.
+```
+
+Other examples are:
+```
+docs/update_readme
+refactor/new_welcome_message
+```
+Look for the *Examples* in section *Commit messages* for a description of the allowed branch types.
+It's OK to use hyphens (`-`) or underscores (`_`) to replace spaces. Avoid any other special characters, like `#` or `$`, as they might lead to problems, for example, when deploying the content using the branch name as part of the URL. The branch name should match this regexp: `(chore|docs|feat|fix|refactor|style|test)/[0-9a-zA-Z_-]+`
+
+
+#### Exceptions:
+This rules are ignored when you work on *environment* branches like `master`, `development`, `local` and so on. 
+
 # Commit messages
 
 In master branches and pull requests, we do [semantic commits](https://seesparkbox.com/foundry/semantic_commit_messages).
