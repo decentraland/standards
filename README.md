@@ -1,3 +1,7 @@
+<b>⚠️ This repository is now archived. New standads will now live in [decentraland/adr](https://github.com/decentraland/adr).</b>
+
+---
+
 # Decentraland standards
 
 * [Conventions](#conventions)
